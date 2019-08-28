@@ -46,19 +46,13 @@
                  Width="150"/>
 
         <TextBlock Grid.Column="1" Grid.Row="5" Margin="0,0,10,0"
-                   Text="Password:">
-        </TextBlock>
-        <TextBox x:Name="pass" Grid.Column="2" Grid.Row="5"
-                 Width="150"/>
-
-        <TextBlock Grid.Column="1" Grid.Row="6" Margin="0,0,10,0"
                    Text="Token:">
         </TextBlock>
-        <TextBox x:Name="token" Grid.Column="2" Grid.Row="6"
+        <TextBox x:Name="token" Grid.Column="2" Grid.Row="5"
                  Width="150"/>
 
         <Button x:Name="saveButton" Content="Save" 
-                Grid.Column="3" Grid.Row="3" Margin="20,0,10,0" Click="SaveButton_Click"
+                Grid.Column="3" Grid.Row="3" Margin="15,0,10,0" Click="SaveButton_Click"
                 />
     </Grid>
 </Window>

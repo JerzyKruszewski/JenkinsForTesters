@@ -26,13 +26,23 @@ namespace JenkinsForTesters
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        ///     Configuration file location.
+        /// </summary>
         private static readonly string _filepath = "Config/Config.json";
+
+        private static Account _account;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        ///     Get information about about available jobs from Jenkins server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SubmitButton_Clicked(object sender, RoutedEventArgs e)
         {
             Config config = GetConfig();
@@ -41,20 +51,19 @@ namespace JenkinsForTesters
             int port = config.Port;
             string url = $"http://{adress}:{port}/api/json?tree=jobs[name,url,color]&pretty=true";
             string login = config.Login;
-            string password = config.Password;
+            string apiToken = config.Token;
 
             WebClient client = new WebClient();
 
             try
             {
-                string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(login + ":" + password));
+                string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(login + ":" + apiToken));
                 client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
                 string result = client.DownloadString(url);
-                Account json = JsonConvert.DeserializeObject<Account>(client.DownloadString(url));
-                myComboBox.ItemsSource = json.Jobs;
-                MessageBox.Show("DONE\n\n" + result);
+                _account = JsonConvert.DeserializeObject<Account>(client.DownloadString(url));
+                myComboBox.ItemsSource = _account.Jobs;
 
-                //BuildUnbuildedJobs(json, login, password, config.Token);
+                MessageBox.Show("DONE");
             }
             catch (Exception ex)
             {
@@ -66,30 +75,68 @@ namespace JenkinsForTesters
             }
         }
 
-        private Task BuildUnbuildedJobs(Account account, string login, string password, string token)
-        {
-            //DOES NOT WORK
-            WebClient client = new WebClient();
-            Uri uri = new Uri($"{account.Jobs.FirstOrDefault(x => x.Color == "red").Url}/build");
-
-            string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(login + ":" + password));
-            client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
-            client.UploadData(uri, "POST", Encoding.ASCII.GetBytes($"?token={token}"));
-            return Task.CompletedTask;
-        }
-
+        /// <summary>
+        ///     Show configuration interface
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
             var window = new ConfigWindow();
             window.Show();
         }
 
+        /// <summary>
+        ///     Get configuration
+        /// </summary>
+        /// <returns> configuration information </returns>
         private Config GetConfig()
         {
-            //problem
             Config config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(_filepath));
 
             return config;
+        }
+
+        /// <summary>
+        ///      Build failing jobs
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void BuildButton_Click(object sender, RoutedEventArgs e)
+        {
+            Config config = GetConfig();
+
+            string login = config.Login;
+            string apiToken = config.Token;
+
+            Uri uri;
+            WebClient client = new WebClient();
+
+            try
+            {
+                List<Job> failingJobs = _account.Jobs.FindAll(x => x.Color == "red");
+
+                foreach (Job job in failingJobs)
+                {
+                    uri = new Uri($"{job.Url}/build");
+
+                    string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(login + ":" + apiToken));
+                    client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
+                    client.UploadData(uri, "POST", Encoding.ASCII.GetBytes($"?token={apiToken}"));
+
+                    await Task.Delay(5000); //Preemptive Rate limit (more or less)
+                }
+
+                MessageBox.Show("DONE");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something goes wrong...\n{ex.Message}");
+            }
+            finally
+            {
+                client.Dispose();
+            }
         }
     }
 }

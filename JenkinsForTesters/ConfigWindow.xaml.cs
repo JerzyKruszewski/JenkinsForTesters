@@ -30,12 +30,26 @@ namespace JenkinsForTesters
             InitializeComponent();
         }
 
+        /// <summary>
+        ///     Create config file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             _config.IPAdress = adress.Text;
-            _config.Port = Int32.Parse(port.Text);
+
+            try
+            {
+                _config.Port = Int32.Parse(port.Text); //catch exception
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex.Message}\n\nMake sure that Port value is an Integer.");
+                return;
+            }
+
             _config.Login = login.Text;
-            _config.Password = pass.Text;
             _config.Token = token.Text;
 
             string json = JsonConvert.SerializeObject(_config);
