@@ -109,7 +109,6 @@ namespace JenkinsForTesters
             string login = config.Login;
             string apiToken = config.Token;
 
-            Uri uri;
             WebClient client = new WebClient();
 
             try
@@ -118,11 +117,7 @@ namespace JenkinsForTesters
 
                 foreach (Job job in failingJobs)
                 {
-                    uri = new Uri($"{job.Url}/build");
-
-                    string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(login + ":" + apiToken));
-                    client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
-                    client.UploadData(uri, "POST", Encoding.ASCII.GetBytes($"?token={apiToken}"));
+                    BuildJob(job, client, login, apiToken);
 
                     await Task.Delay(5000); //Preemptive Rate limit (more or less)
                 }
@@ -137,6 +132,89 @@ namespace JenkinsForTesters
             {
                 client.Dispose();
             }
+        }
+
+        /// <summary>
+        ///     Build all jobs
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void BuildAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            Config config = GetConfig();
+
+            string login = config.Login;
+            string apiToken = config.Token;
+
+            WebClient client = new WebClient();
+
+            try
+            {
+                foreach (Job job in _account.Jobs)
+                {
+                    BuildJob(job, client, login, apiToken);
+
+                    await Task.Delay(5000); //Preemptive Rate limit (more or less)
+                }
+
+                MessageBox.Show("DONE");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something goes wrong...\n{ex.Message}");
+            }
+            finally
+            {
+                client.Dispose();
+            }
+        }
+
+        /// <summary>
+        ///     Build single job specified in CompoBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BuildOneButton_Click(object sender, RoutedEventArgs e)
+        {
+            Config config = GetConfig();
+
+            string login = config.Login;
+            string apiToken = config.Token;
+
+            WebClient client = new WebClient();
+
+            try
+            {
+                Job job = myComboBox.SelectedItem as Job;
+
+                BuildJob(job, client, login, apiToken);
+
+                MessageBox.Show("DONE");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something goes wrong...\n{ex.Message}");
+            }
+            finally
+            {
+                client.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Builds job
+        /// </summary>
+        /// <param name="job">job to build</param>
+        /// <param name="client">to change</param>
+        /// <param name="login">login to Jenkins server</param>
+        /// <param name="apiToken">Jenkins api token</param>
+        private static void BuildJob(Job job, WebClient client, string login, string apiToken)
+        {
+            Uri uri = new Uri($"{job.Url}/build");
+
+            string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(login + ":" + apiToken));
+            client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
+            client.UploadData(uri, "POST", Encoding.ASCII.GetBytes($"?token={apiToken}"));
         }
     }
 }

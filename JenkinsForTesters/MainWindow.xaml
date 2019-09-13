@@ -12,6 +12,7 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="20" />
         </Grid.ColumnDefinitions>
@@ -28,24 +29,30 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Column="1" Grid.Row="1" FontSize="28"
-                   Grid.ColumnSpan="3" Margin="0,0,0,10"
+                   Grid.ColumnSpan="4" Margin="0,0,0,10"
                    Text="Jenkins For Testers">
         </TextBlock>
 
         <Button x:Name="submitButton" Content="Get data from Jenkins" 
-                Grid.Column="3" Grid.Row="3" Margin="10,10,10,10" Click="SubmitButton_Clicked"
+                Grid.Column="4" Grid.Row="3" Margin="10,10,10,10" Click="SubmitButton_Clicked"
                 />
 
         <Button x:Name="configButton" Content="Configuration" 
-                Grid.Column="3" Grid.Row="5" Margin="10,10,10,10" Click="ConfigButton_Click"
+                Grid.Column="4" Grid.Row="5" Margin="10,10,10,10" Click="ConfigButton_Click"
                 />
 
+        <Button x:Name="buildOneButton" Content="Build This Job"
+                Grid.Column="2" Grid.Row="6" Margin="10,10,10,10" Click="BuildOneButton_Click"
+                />
+        <Button x:Name="buildAllButton" Content="Build All"
+                Grid.Column="4" Grid.Row="6" Margin="10,10,10,10" Click="BuildAllButton_Click" 
+                />
         <Button x:Name="buildButton" Content="Build failing jobs" 
                 Grid.Column="3" Grid.Row="6" Margin="10,10,10,10" Click="BuildButton_Click"
                 />
 
         <ComboBox x:Name="myComboBox" Grid.Column="1" Grid.Row="4"
-                  Grid.ColumnSpan="3">
+                  Grid.ColumnSpan="4">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
