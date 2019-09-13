@@ -11,8 +11,10 @@ Features:
 - Simple GUI
 - JSON Config
 - Fetching information about available jobs from Jenkins server
+- Building specific job
 - Building failing jobs
+- Building all jobs
 
 In Progress:
-- Algorithm, that should build specific job
-- Algorithm, that should build all jobs
+- Bug fixing
+- Code cleaning
