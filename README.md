@@ -18,3 +18,8 @@ Features:
 In Progress:
 - Bug fixing
 - Code cleaning
+
+## What I have learned working on this project
+- Coding WPF applications
+- Calling Jenkins API using both token and login with password as request credentials
+- Very basic information about Jenkins and CI/CD
